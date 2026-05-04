@@ -10,7 +10,6 @@ const tabsDiv = document.getElementById('tabs');
 const inputBox = document.getElementById('inputBox');
 const inputField = document.getElementById('input');
 const inputTitle = document.getElementById('inputTitle');
-const notifContainer = document.getElementById('notifications');
 
 function send(data) {
     fetch(`https://${GetParentResourceName()}/message`, {
@@ -19,7 +18,6 @@ function send(data) {
     });
 }
 
-// Render Tabs
 function renderTabs() {
     tabsDiv.innerHTML = '';
     if (currentTabs.length === 0) {
@@ -43,7 +41,6 @@ function renderTabs() {
     });
 }
 
-// Render Menu Items
 function render() {
     itemsDiv.innerHTML = '';
     currentMenu.forEach((item, i) => {
@@ -64,22 +61,6 @@ function render() {
         }
         itemsDiv.appendChild(el);
     });
-}
-
-// Notifications
-function showNotification(title, message, type = 'info', duration = 3500) {
-    const notif = document.createElement('div');
-    notif.className = `Notification ${type}`;
-    notif.innerHTML = `
-        <strong>${title}</strong><br>
-        <span>${message}</span>
-    `;
-    notifContainer.appendChild(notif);
-
-    setTimeout(() => {
-        notif.style.opacity = '0';
-        setTimeout(() => notif.remove(), 300);
-    }, duration);
 }
 
 window.addEventListener('message', e => {
@@ -109,32 +90,38 @@ window.addEventListener('message', e => {
         inputTitle.textContent = d.question || "Enter value:";
         inputField.value = d.value || "";
         inputBox.classList.add('show');
-        setTimeout(() => inputField.focus(), 100);
+        
+        // Force focus
+        setTimeout(() => {
+            inputField.focus();
+            inputField.select();
+        }, 50);
     }
     else if (d.action === 'closeInput') {
         isInputOpen = false;
         inputBox.classList.remove('show');
     }
-    else if (d.action === 'notification') {
-        showNotification(d.title, d.message, d.type, d.duration);
-    }
 });
 
+// Input handling
 document.addEventListener('keydown', e => {
     if (isInputOpen) {
+        // Allow normal typing in the input field
         if (e.key === "Enter") {
             send({ action: "textInputResult", value: inputField.value });
             inputBox.classList.remove('show');
             isInputOpen = false;
-        }
-        if (e.key === "Escape") {
+        } 
+        else if (e.key === "Escape") {
             send({ action: "textInputResult", value: null });
             inputBox.classList.remove('show');
             isInputOpen = false;
         }
+        // Do NOT block other keys - let the input field handle them
         return;
     }
 
+    // Normal menu navigation
     send({ action: "keyPressed", key: e.key });
 });
 
