@@ -1,76 +1,66 @@
-let currentMenu = [];
-let activeIndex = 0;
-let currentTabIndex = 0;
-
-window.addEventListener('message', function(event) {
+window.addEventListener('message', (event) => {
     const data = event.data;
 
-    if (data.action === "notification") {
-        createNotification(data);
-    } else if (data.action === "openMenu") {
-        $("#menu-wrapper").fadeIn(200);
-        renderMenu(data.menu);
+    if (data.action === 'notification') {
+        showNotification(data.title, data.message, data.type, data.duration);
+    } 
+    
+    if (data.activeMenu) {
+        renderMenu(data.activeMenu);
     }
 });
 
 function renderMenu(menuData) {
-    currentMenu = menuData;
-    $("#items-list").empty();
-    $("#tabs-container").empty();
+    const container = document.getElementById('menu-container');
+    container.innerHTML = ''; // Clear old menu
 
-    // In your Lua structure, "activeMenu" contains submenus with "tabs"
-    const menuObj = currentMenu[0]; // Assuming Player menu
-    $("#menu-title").text(menuObj.label);
+    menuData.forEach((item, index) => {
+        const menuElement = document.createElement('div');
+        menuElement.className = 'menu-item';
+        
+        // Handle Submenus/Tabs
+        if (item.type === 'submenu') {
+            menuElement.innerHTML = `<h3>${item.label}</h3>`;
+            const tabsContainer = document.createElement('div');
+            tabsContainer.className = 'tabs';
 
-    // Render Tabs
-    menuObj.tabs.forEach((tab, index) => {
-        const tabEl = $(`<div class="tab-item ${index === currentTabIndex ? 'active' : ''}">${tab.name}</div>`);
-        $("#tabs-container").append(tabEl);
-    });
-
-    // Render Items for active tab
-    const activeItems = menuObj.tabs[currentTabIndex].submenu;
-    activeItems.forEach((item, index) => {
-        let extra = '';
-        if (item.type === 'checkbox') {
-            extra = `<div class="checkbox-visual ${item.value ? 'checked' : ''}"></div>`;
-        } else if (item.type === 'submenu') {
-            extra = `<span> > </span>`;
+            item.tabs.forEach(tab => {
+                const tabBtn = document.createElement('button');
+                tabBtn.innerText = tab.name;
+                tabBtn.onclick = () => renderSubmenu(tab.submenu);
+                tabsContainer.appendChild(tabBtn);
+            });
+            menuElement.appendChild(tabsContainer);
         }
-
-        const itemEl = $(`
-            <div class="menu-item ${index === activeIndex ? 'selected' : ''}">
-                <span>${item.label}</span>
-                ${extra}
-            </div>
-        `);
-        $("#items-list").append(itemEl);
+        container.appendChild(menuElement);
     });
 }
 
-function createNotification(data) {
-    const id = Math.floor(Math.random() * 1000);
-    const html = `
-        <div id="notif-${id}" class="notification ${data.type}">
-            <strong>${data.title}</strong>
-            <p style="margin: 5px 0 0 0; font-size: 13px;">${data.message}</p>
-        </div>
-    `;
-    $("#notifications-container").append(html);
-    setTimeout(() => {
-        $(`#notif-${id}`).fadeOut(500, function() { $(this).remove(); });
-    }, data.duration || 3500);
+function renderSubmenu(submenuItems) {
+    const subContainer = document.getElementById('submenu-display');
+    subContainer.innerHTML = '';
+
+    submenuItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'option-row';
+
+        if (item.type === 'checkbox') {
+            div.innerHTML = `
+                <span>${item.label}</span>
+                <input type="checkbox" ${item.value ? 'checked' : ''} 
+                onchange="sendToLua('${item.label}', this.checked)">
+            `;
+        } else if (item.type === 'button') {
+            div.innerHTML = `<button onclick="sendToLua('${item.label}')">${item.label}</button>`;
+        }
+        subContainer.appendChild(div);
+    });
 }
 
-// Basic keyboard navigation for the DUI
-$(document).keydown(function(e) {
-    // This part usually sends NUI callbacks back to Lua
-    // to trigger the 'onConfirm' functions in your script.
-    if (e.which == 38) { // Up
-        // Logic to move activeIndex up
-    } else if (e.which == 40) { // Down
-        // Logic to move activeIndex down
-    } else if (e.which == 13) { // Enter
-        // Send message to Lua: $.post('https://res/confirm', JSON.stringify({index: activeIndex}));
-    }
-});
+function sendToLua(label, val = null) {
+    // This sends the data back to your OnDuiMessage in Lua
+    fetch(`https://${GetParentResourceName()}/menuResult`, {
+        method: 'POST',
+        body: JSON.stringify({ label: label, value: val })
+    });
+}
