@@ -4,189 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moon Menu</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-        
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        .menu-container {
-            width: 420px;
-            background: #18181b;
-            border: 1px solid #3f3f46;
-            border-radius: 12px;
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
-            overflow: hidden;
-            margin: 20px;
-        }
-
-        .header {
-            background: #27272a;
-            padding: 16px 20px;
-            border-bottom: 1px solid #3f3f46;
-            font-weight: 600;
-            font-size: 18px;
-        }
-
-        .item {
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s;
-            border-bottom: 1px solid #27272a;
-        }
-
-        .item:hover {
-            background: #27272a;
-        }
-
-        .item.active {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .checkbox {
-            font-size: 18px;
-        }
-
-        .input-box {
-            padding: 20px;
-            background: #18181b;
-        }
-
-        input {
-            width: 100%;
-            background: #27272a;
-            border: 1px solid #52525b;
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            outline: none;
-            font-size: 16px;
-        }
-
-        .footer {
-            font-size: 12px;
-            color: #71717a;
-            text-align: center;
-            padding: 8px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="flex items-start justify-center min-h-screen">
-
+<body>
     <div id="menu" class="menu-container hidden">
         <div class="header" id="title">Moon Menu</div>
         
-        <div id="items" class="max-h-[65vh] overflow-y-auto"></div>
+        <div id="items" class="items-container"></div>
 
-        <!-- Input Field -->
-        <div id="inputContainer" class="input-box hidden">
-            <div id="inputQuestion" class="mb-3 text-sm font-medium"></div>
+        <!-- Input Section -->
+        <div id="inputContainer" class="input-container hidden">
+            <div id="inputQuestion" class="input-question"></div>
             <input id="inputField" type="text" placeholder="Type here..." autocomplete="off">
-            <div class="text-xs text-zinc-500 mt-3">
-                ENTER = Confirm • ESC = Cancel
-            </div>
+            <div class="input-hint">ENTER = Confirm • ESC = Cancel</div>
         </div>
 
         <div class="footer">Moon Menu • Simple DUI</div>
     </div>
 
-    <script>
-        let currentItems = [];
-        let activeIndex = 0;
-        let isInputOpen = false;
-
-        const menu = document.getElementById('menu');
-        const itemsContainer = document.getElementById('items');
-        const inputContainer = document.getElementById('inputContainer');
-        const inputField = document.getElementById('inputField');
-        const inputQuestion = document.getElementById('inputQuestion');
-
-        function send(data) {
-            fetch(`https://${GetParentResourceName()}/message`, {
-                method: 'POST',
-                body: JSON.stringify(data)
-            });
-        }
-
-        function renderItems() {
-            itemsContainer.innerHTML = '';
-
-            currentItems.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = `item ${index === activeIndex ? 'active' : ''}`;
-                
-                let html = `<span>${item.label || 'Unknown'}</span>`;
-                
-                if (item.type === 'checkbox' || item.checked !== undefined) {
-                    const checked = item.value || item.checked || false;
-                    html += `<span class="checkbox">${checked ? '✅' : '⬜'}</span>`;
-                }
-                
-                div.innerHTML = html;
-                itemsContainer.appendChild(div);
-            });
-        }
-
-        window.addEventListener('message', function(event) {
-            const data = event.data;
-
-            if (data.action === 'setVisible') {
-                menu.classList.toggle('hidden', !data.visible);
-            }
-
-            else if (data.action === 'setCurrent') {
-                currentItems = data.menu || [];
-                activeIndex = data.current || 0;
-                renderItems();
-            }
-
-            else if (data.action === 'openInput') {
-                isInputOpen = true;
-                inputQuestion.textContent = data.question || "Enter value:";
-                inputField.value = data.value || "";
-                inputContainer.classList.remove('hidden');
-                menu.classList.add('hidden');
-                setTimeout(() => inputField.focus(), 100);
-            }
-
-            else if (data.action === 'closeInput') {
-                isInputOpen = false;
-                inputContainer.classList.add('hidden');
-                menu.classList.remove('hidden');
-            }
-
-            else if (data.action === 'updateInput') {
-                inputField.value = data.value || "";
-            }
-        });
-
-        // Keyboard handling
-        document.addEventListener('keydown', function(e) {
-            if (isInputOpen) {
-                if (e.key === "Enter") {
-                    send({ action: "textInputResult", value: inputField.value });
-                } else if (e.key === "Escape") {
-                    send({ action: "textInputResult", value: null });
-                }
-                return;
-            }
-
-            // Forward key presses to Lua (optional, your Lua already uses natives)
-            send({ action: "keyPressed", key: e.key });
-        });
-
-        // Tell Lua we're ready
-        send({ action: "ready" });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
