@@ -20,10 +20,12 @@ function send(data) {
 
 function renderTabs() {
     tabsDiv.innerHTML = '';
+    if (currentTabs.length === 0) return;
+
     currentTabs.forEach((tab, i) => {
         const el = document.createElement('div');
         el.className = `PCategory ${i === currentTabIndex ? 'active' : ''}`;
-        el.textContent = tab.name;
+        el.textContent = tab.name || 'Tab';
         el.onclick = () => {
             currentTabIndex = i;
             activeIndex = 0;
@@ -67,11 +69,14 @@ window.addEventListener('message', e => {
         currentMenu = d.menu || [];
         activeIndex = d.current || 0;
 
-        // Handle tabs if present
-        if (d.menu && d.menu.tabs) {
+        // Handle tabs
+        if (d.menu && Array.isArray(d.menu.tabs) && d.menu.tabs.length > 0) {
             currentTabs = d.menu.tabs;
             renderTabs();
-            currentMenu = currentTabs[0].submenu || [];
+            // Load first tab by default
+            if (currentTabs[0] && currentTabs[0].submenu) {
+                currentMenu = currentTabs[0].submenu;
+            }
         } else {
             currentTabs = [];
             tabsDiv.innerHTML = '';
@@ -94,19 +99,10 @@ window.addEventListener('message', e => {
 
 document.addEventListener('keydown', e => {
     if (isInputOpen) {
-        if (e.key === "Enter") {
-            send({ action: "textInputResult", value: inputField.value });
-            inputBox.classList.remove('show');
-            isInputOpen = false;
-        }
-        if (e.key === "Escape") {
-            send({ action: "textInputResult", value: null });
-            inputBox.classList.remove('show');
-            isInputOpen = false;
-        }
+        if (e.key === "Enter") send({ action: "textInputResult", value: inputField.value });
+        if (e.key === "Escape") send({ action: "textInputResult", value: null });
         return;
     }
-
     send({ action: "keyPressed", key: e.key });
 });
 
