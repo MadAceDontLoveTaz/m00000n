@@ -1,23 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { background-color: rgba(0,0,0,0.8); color: white; font-family: sans-serif; }
+        .menu-item { border: 1px solid #444; margin: 10px; padding: 10px; }
+    </style>
 </head>
 <body>
-    <div id="menu-wrapper" style="display: none;">
-        <div id="menu-container">
-            <div class="menu-header">
-                <h1 id="menu-title">Main Menu</h1>
-            </div>
-            <div id="tabs-container"></div>
-            <div id="items-list"></div>
-        </div>
-    </div>
+    <div id="ui-root">Waiting for Lua data...</div>
 
-    <div id="notifications-container"></div>
-
-    <script src="script.js"></script>
+    <script>
+        window.addEventListener('message', function(event) {
+            let data = event.data;
+            if (data.activeMenu) {
+                let root = document.getElementById('ui-root');
+                root.innerHTML = "<h1>Menu Loaded</h1>";
+                
+                // Loop through your Lua table items
+                data.activeMenu.forEach(item => {
+                    let div = document.createElement('div');
+                    div.className = 'menu-item';
+                    div.innerHTML = `Category: ${item.label}`;
+                    root.appendChild(div);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
