@@ -1,10 +1,15 @@
 @import "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap";
 
+:root {
+    --menu-color: 30, 100, 255;
+}
+
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
     background: none;
     overflow: hidden;
+    height: 100vh;
 }
 
 .PWrapper {
@@ -18,24 +23,51 @@ body {
 .PBanner {
     width: 19.0104vw;
     height: 5.4688vw;
-    background: #0f0f0f;
+    background: linear-gradient(#1a1a1a, #0f0f0f);
     border: 1px solid #000;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #fff;
     font-size: 1.1vw;
     font-weight: 600;
 }
 
+.PCategories {
+    width: 19.0104vw;
+    height: 1.8vw;
+    background: #000;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    display: flex;
+    overflow: hidden;
+}
+
+.PCategories .PCategory {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65vw;
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.PCategories .PCategory.active {
+    background: rgba(var(--menu-color), 0.2);
+    color: white;
+}
+
 .PTabs {
     width: 19.0104vw;
-    max-height: 60vh;
+    max-height: 55vh;
     background: #0a0a0a;
-    border: 1px solid #000;
-    border-top: none;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #000;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     overflow-y: auto;
@@ -51,6 +83,7 @@ body {
     font-size: 0.73vw;
     color: #fff;
     cursor: pointer;
+    position: relative;
 }
 
 .item:hover {
@@ -58,7 +91,7 @@ body {
 }
 
 .item.active {
-    background: rgba(30, 100, 255, 0.2);
+    background: rgba(var(--menu-color), 0.25);
     color: white;
 }
 
@@ -68,20 +101,20 @@ body {
 
 .checkbox {
     margin-left: auto;
-    font-size: 1.15vw;
+    font-size: 1.1vw;
 }
 
-/* Input - Only shows when typing */
+/* Input */
 .input-box {
     position: absolute;
     left: 50%;
-    top: 35%;
+    top: 40%;
     transform: translate(-50%, -50%);
     width: 380px;
     background: #111;
-    border: 2px solid #1e90ff;
+    border: 2px solid rgb(var(--menu-color));
     border-radius: 6px;
-    padding: 16px 20px;
+    padding: 18px 22px;
     z-index: 10000;
     display: none;
 }
@@ -91,20 +124,26 @@ body {
 }
 
 .input-box #inputTitle {
-    color: #ccc;
-    margin-bottom: 8px;
+    color: #ddd;
     text-align: center;
-    font-size: 14px;
+    margin-bottom: 10px;
 }
 
 .input-box input {
     width: 100%;
     background: #1a1a1a;
-    border: 1px solid #555;
+    border: 1px solid #444;
     color: white;
     padding: 12px;
-    font-size: 16px;
+    font-size: 1.05vw;
     border-radius: 4px;
+}
+
+.hint {
+    text-align: center;
+    margin-top: 8px;
+    font-size: 0.65vw;
+    color: #666;
 }
 
 /* Scrollbar */
@@ -112,5 +151,5 @@ body {
     width: 5px;
 }
 .PTabs::-webkit-scrollbar-thumb {
-    background: #1e90ff;
+    background: rgb(var(--menu-color));
 }
