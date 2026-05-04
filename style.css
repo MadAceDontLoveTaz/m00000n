@@ -1,7 +1,7 @@
 @import "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap";
 
 :root {
-    --menu-color: 30, 100, 255; /* Blue accent - change to 200,0,0 for red */
+    --menu-color: 30, 100, 255;
 }
 
 body {
@@ -33,7 +33,6 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    position: relative;
 }
 
 .PTabs {
@@ -68,7 +67,7 @@ body {
 }
 
 .item.active {
-    background: rgba(var(--menu-color), 0.15);
+    background: rgba(var(--menu-color), 0.18);
     color: white;
 }
 
@@ -81,41 +80,41 @@ body {
     font-size: 1.1vw;
 }
 
-/* Input */
+/* Input - Now clean overlay */
 .input-box {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: 45%;
     transform: translate(-50%, -50%);
-    width: 26vw;
-    background: #0a0a0a;
-    border: 1px solid rgb(var(--menu-color));
-    border-radius: 6px;
-    padding: 20px;
-    z-index: 1000;
-}
-
-.input-title {
-    color: #fff;
-    font-size: 0.9vw;
-    margin-bottom: 12px;
-}
-
-input {
-    width: 100%;
+    width: 28vw;
     background: #111;
-    border: 1px solid #333;
-    color: white;
-    padding: 12px;
-    font-size: 1vw;
-    border-radius: 4px;
+    border: 2px solid rgb(var(--menu-color));
+    border-radius: 8px;
+    padding: 18px 22px;
+    z-index: 10000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 
-.hint {
+.input-box #inputTitle {
+    color: #ddd;
+    font-size: 0.85vw;
+    margin-bottom: 10px;
     text-align: center;
-    margin-top: 10px;
-    font-size: 0.65vw;
-    color: #666;
+}
+
+.input-box input {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    color: white;
+    padding: 14px;
+    font-size: 1.05vw;
+    border-radius: 6px;
+    outline: none;
+}
+
+.input-box input:focus {
+    border-color: rgb(var(--menu-color));
 }
 
 /* Scrollbar */
@@ -124,9 +123,4 @@ input {
 }
 .PTabs::-webkit-scrollbar-thumb {
     background: rgb(var(--menu-color));
-}
-
-/* Hide unnecessary V3X4 stuff */
-.Desc, .Metadata, .NotificationsWrapper, .KBLWrapper, .FCWrapper, .Overlay {
-    display: none !important;
 }
