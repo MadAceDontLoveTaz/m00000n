@@ -1,78 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: rgba(0,0,0,0.8); color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        #menu { width: 400px; background: #1a1a1a; border: 1px solid #00bfff; border-radius: 8px; padding: 20px; box-shadow: 0 0 20px rgba(0, 191, 255, 0.3); }
-        .header { font-size: 24px; color: #00bfff; text-align: center; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
-        .tab-container { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .tab { cursor: pointer; padding: 5px 10px; color: #888; transition: 0.3s; }
-        .tab.active { color: #00bfff; border-bottom: 2px solid #00bfff; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { background: #222; border: 1px solid #333; color: #ccc; padding: 10px; cursor: pointer; transition: 0.2s; border-radius: 4px; }
-        button:hover { background: #00bfff; color: #000; }
-        .toggle-btn.active { border-color: #00ff00; color: #00ff00; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moon Menu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      overflow: hidden;
+    }
+    .menu-item {
+      padding: 12px 20px;
+      margin: 2px 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .menu-item.active {
+      background: #3b82f6;
+      color: white;
+      font-weight: 600;
+    }
+    .checkbox {
+      color: #22c55e;
+    }
+  </style>
 </head>
-<body>
-    <div id="menu">
-        <div class="header">Moon Mono</div>
-        <div class="tab-container" id="tabs"></div>
-        <div class="btn-grid" id="button-area"></div>
+<body class="flex items-center justify-center min-h-screen">
+  <div id="menu" class="w-[420px] bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden hidden">
+    <div class="bg-zinc-800 px-6 py-3 border-b border-zinc-700 flex items-center justify-between">
+      <div class="font-bold text-xl" id="title">Moon Menu</div>
+      <div class="text-xs text-zinc-400" id="subtitle"></div>
     </div>
 
-    <script>
-        // Communication from Lua to JS
-        window.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
-            if (data.action === "updateMenu") {
-                renderMenu(data.menuData);
-            }
-        });
+    <div id="items" class="max-h-[70vh] overflow-y-auto py-2"></div>
 
-        // Communication from JS to Lua
-        function triggerAction(actionName, value) {
-            fetch(`https://${GetParentResourceName()}/menuAction`, {
-                method: 'POST',
-                body: JSON.stringify({ action: actionName, value: value })
-            });
-        }
+    <div id="inputContainer" class="hidden p-6 bg-zinc-800 border-t border-zinc-700">
+      <div class="text-sm mb-2" id="inputQuestion"></div>
+      <input id="inputField" 
+             class="w-full bg-zinc-900 border border-zinc-600 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500"
+             placeholder="Type here...">
+      <div class="text-xs text-zinc-500 mt-2">Press ENTER to confirm • ESC to cancel</div>
+    </div>
+  </div>
 
-        function renderMenu(tabs) {
-            const tabArea = document.getElementById('tabs');
-            const btnArea = document.getElementById('button-area');
-            
-            tabs.forEach((tab, index) => {
-                let tabEl = document.createElement('div');
-                tabEl.className = `tab ${index === 0 ? 'active' : ''}`;
-                tabEl.innerText = tab.name;
-                tabEl.onclick = () => {
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    tabEl.classList.add('active');
-                    renderButtons(tab.submenu);
-                };
-                tabArea.appendChild(tabEl);
-            });
-            renderButtons(tabs[0].submenu); // Default
-        }
+  <script>
+    let currentMenu = [];
+    let activeIndex = 0;
+    let isVisible = false;
+    let isInputMode = false;
 
-        function renderButtons(buttons) {
-            const btnArea = document.getElementById('button-area');
-            btnArea.innerHTML = '';
-            buttons.forEach(btn => {
-                let el = document.createElement('button');
-                el.innerText = btn.label;
-                if(btn.type === 'checkbox' && btn.value) el.classList.add('active');
-                el.onclick = () => {
-                    if(btn.type === 'checkbox') {
-                        btn.value = !btn.value;
-                        el.classList.toggle('active');
-                    }
-                    triggerAction(btn.label, btn.value);
-                };
-                btnArea.appendChild(el);
-            });
+    const menuEl = document.getElementById('menu');
+    const itemsEl = document.getElementById('items');
+    const inputContainer = document.getElementById('inputContainer');
+    const inputField = document.getElementById('inputField');
+
+    function renderMenu() {
+      itemsEl.innerHTML = '';
+      
+      currentMenu.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = `menu-item flex items-center justify-between ${i === activeIndex ? 'active' : ''}`;
+        
+        let content = `<span>${item.label}</span>`;
+        
+        if (item.type === 'checkbox') {
+          content += `<span class="checkbox">${item.value || item.checked ? '✅' : '⬜'}</span>`;
         }
-    </script>
+        
+        div.innerHTML = content;
+        itemsEl.appendChild(div);
+      });
+    }
+
+    function send(action, data = {}) {
+      fetch(`https://${GetParentResourceName()}/message`, {
+        method: 'POST',
+        body: JSON.stringify({ action, ...data })
+      });
+    }
+
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+
+      if (data.action === 'setVisible') {
+        isVisible = data.visible;
+        menuEl.classList.toggle('hidden', !isVisible);
+        if (isVisible) renderMenu();
+      }
+
+      else if (data.action === 'setCurrent') {
+        currentMenu = data.menu || [];
+        activeIndex = data.current || 0;
+        renderMenu();
+      }
+
+      else if (data.action === 'openInput') {
+        isInputMode = true;
+        document.getElementById('inputQuestion').textContent = data.question || "Enter value:";
+        inputField.value = data.value || "";
+        inputContainer.classList.remove('hidden');
+        menuEl.classList.add('hidden');
+        setTimeout(() => inputField.focus(), 50);
+      }
+
+      else if (data.action === 'closeInput') {
+        isInputMode = false;
+        inputContainer.classList.add('hidden');
+        menuEl.classList.remove('hidden');
+      }
+
+      else if (data.action === 'updateInput') {
+        inputField.value = data.value || "";
+      }
+    });
+
+    // Keyboard handling (sent to Lua)
+    document.addEventListener('keydown', (e) => {
+      if (!isVisible && !isInputMode) return;
+
+      if (isInputMode) {
+        if (e.key === "Enter") {
+          send('textInputResult', { value: inputField.value });
+        } else if (e.key === "Escape") {
+          send('textInputResult', { value: null });
+        }
+        return;
+      }
+
+      // Navigation keys are handled in Lua, we just need to tell it what key was pressed
+      send('keyPressed', { key: e.key });
+    });
+
+    // Initial ready message
+    send('ready');
+  </script>
 </body>
 </html>
