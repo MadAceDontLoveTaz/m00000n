@@ -12,15 +12,21 @@
                 <div class="PBanner">
                     <span>🌙 MOON MENU</span>
                 </div>
+                
+                <!-- Tabs -->
+                <div id="tabs" class="PCategories"></div>
+                
+                <!-- Items -->
                 <div id="items" class="PTabs"></div>
             </div>
         </div>
     </div>
 
-    <!-- Input only appears when needed -->
+    <!-- Clean Input -->
     <div id="inputBox" class="input-box hidden">
         <div id="inputTitle"></div>
-        <input id="input" type="text" autocomplete="off">
+        <input id="input" type="text" autocomplete="off" spellcheck="false">
+        <div class="hint">Press ENTER to confirm • ESC to cancel</div>
     </div>
 
     <script src="script.js"></script>
