@@ -3,83 +3,82 @@ let activeIndex = 0;
 let isInputOpen = false;
 
 const menu = document.getElementById('menu');
-const itemsContainer = document.getElementById('items');
-const inputContainer = document.getElementById('inputContainer');
-const inputField = document.getElementById('inputField');
-const inputQuestion = document.getElementById('inputQuestion');
+const itemsDiv = document.getElementById('items');
+const inputBox = document.getElementById('inputBox');
+const inputField = document.getElementById('input');
+const inputTitle = document.getElementById('inputTitle');
 
 function send(data) {
     fetch(`https://${GetParentResourceName()}/message`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     });
 }
 
-function renderMenu() {
-    itemsContainer.innerHTML = '';
-
-    currentMenu.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = `item ${index === activeIndex ? 'active' : ''}`;
-
-        let label = item.label || "Unknown";
-        let extra = "";
-
-        if (item.type === 'checkbox' || item.value !== undefined) {
-            const checked = item.value || item.checked || false;
-            extra = `<span class="checkbox">${checked ? '✅' : '⬜'}</span>`;
-        } else if (item.type === 'button') {
-            extra = `<span style="color:#22c55e; font-size:13px;">→</span>`;
+function render() {
+    itemsDiv.innerHTML = '';
+    currentMenu.forEach((item, i) => {
+        const el = document.createElement('div');
+        el.className = `item ${i === activeIndex ? 'active' : ''}`;
+        
+        let text = item.label || 'Unknown';
+        if (item.type === 'checkbox') {
+            text += ` <span class="checkbox">${(item.value || item.checked) ? '✅' : '⬜'}</span>`;
         }
-
-        div.innerHTML = `<span>${label}</span>${extra}`;
-        itemsContainer.appendChild(div);
+        el.innerHTML = text;
+        itemsDiv.appendChild(el);
     });
 }
 
-window.addEventListener('message', (event) => {
-    const data = event.data;
+window.addEventListener('message', e => {
+    const d = e.data;
 
-    if (data.action === 'setVisible') {
-        menu.classList.toggle('hidden', !data.visible);
+    if (d.action === 'setVisible') {
+        menu.classList.toggle('hidden', !d.visible);
     }
 
-    else if (data.action === 'setCurrent') {
-        currentMenu = data.menu || [];
-        activeIndex = data.current || 0;
-        renderMenu();
+    else if (d.action === 'setCurrent') {
+        currentMenu = d.menu || [];
+        activeIndex = d.current || 0;
+        render();
     }
 
-    else if (data.action === 'openInput') {
+    else if (d.action === 'openInput') {
         isInputOpen = true;
-        inputQuestion.textContent = data.question || "Enter value:";
-        inputField.value = data.value || "";
-        inputContainer.classList.remove('hidden');
+        inputTitle.textContent = d.question || "Enter value:";
+        inputField.value = d.value || "";
+        inputBox.classList.remove('hidden');
         menu.classList.add('hidden');
-        setTimeout(() => inputField.focus(), 100);
+        setTimeout(() => inputField.focus(), 50);
     }
 
-    else if (data.action === 'closeInput') {
+    else if (d.action === 'closeInput') {
         isInputOpen = false;
-        inputContainer.classList.add('hidden');
+        inputBox.classList.add('hidden');
         menu.classList.remove('hidden');
     }
 
-    else if (data.action === 'updateInput') {
-        inputField.value = data.value || "";
+    else if (d.action === 'updateInput') {
+        inputField.value = d.value || "";
+    }
+
+    else if (d.action === 'notification') {
+        // You can add a toast here if you want
+        console.log(`[NOTIF] ${d.title}: ${d.message}`);
     }
 });
 
-// Keyboard
-document.addEventListener('keydown', (e) => {
+// Keyboard for input
+document.addEventListener('keydown', e => {
     if (isInputOpen) {
-        if (e.key === "Enter") send({ action: "textInputResult", value: inputField.value });
-        if (e.key === "Escape") send({ action: "textInputResult", value: null });
+        if (e.key === "Enter") {
+            send({ action: "textInputResult", value: inputField.value });
+        } else if (e.key === "Escape") {
+            send({ action: "textInputResult", value: null });
+        }
         return;
     }
     send({ action: "keyPressed", key: e.key });
 });
 
-// Ready
 send({ action: "ready" });
