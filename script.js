@@ -20,7 +20,11 @@ function send(data) {
 
 function renderTabs() {
     tabsDiv.innerHTML = '';
-    if (currentTabs.length === 0) return;
+    if (!currentTabs || currentTabs.length === 0) {
+        tabsDiv.style.display = 'none';
+        return;
+    }
+    tabsDiv.style.display = 'flex';
 
     currentTabs.forEach((tab, i) => {
         const el = document.createElement('div');
@@ -69,17 +73,16 @@ window.addEventListener('message', e => {
         currentMenu = d.menu || [];
         activeIndex = d.current || 0;
 
-        // Handle tabs
-        if (d.menu && Array.isArray(d.menu.tabs) && d.menu.tabs.length > 0) {
+        if (d.menu && d.menu.tabs && d.menu.tabs.length > 0) {
             currentTabs = d.menu.tabs;
             renderTabs();
-            // Load first tab by default
-            if (currentTabs[0] && currentTabs[0].submenu) {
-                currentMenu = currentTabs[0].submenu;
+            if (currentTabs[currentTabIndex] && currentTabs[currentTabIndex].submenu) {
+                currentMenu = currentTabs[currentTabIndex].submenu;
             }
         } else {
             currentTabs = [];
             tabsDiv.innerHTML = '';
+            tabsDiv.style.display = 'none';
         }
 
         render();
@@ -89,7 +92,7 @@ window.addEventListener('message', e => {
         inputTitle.textContent = d.question || "Enter value:";
         inputField.value = d.value || "";
         inputBox.classList.add('show');
-        inputField.focus();
+        setTimeout(() => inputField.focus(), 50);
     }
     else if (d.action === 'closeInput') {
         isInputOpen = false;
@@ -97,12 +100,24 @@ window.addEventListener('message', e => {
     }
 });
 
+// Improved Input Handling
 document.addEventListener('keydown', e => {
     if (isInputOpen) {
-        if (e.key === "Enter") send({ action: "textInputResult", value: inputField.value });
-        if (e.key === "Escape") send({ action: "textInputResult", value: null });
-        return;
+        // Let the input field handle typing naturally
+        if (e.key === "Enter") {
+            send({ action: "textInputResult", value: inputField.value });
+            inputBox.classList.remove('show');
+            isInputOpen = false;
+        } 
+        else if (e.key === "Escape") {
+            send({ action: "textInputResult", value: null });
+            inputBox.classList.remove('show');
+            isInputOpen = false;
+        }
+        return; // Important: don't send key to menu while typing
     }
+
+    // Normal menu navigation
     send({ action: "keyPressed", key: e.key });
 });
 
