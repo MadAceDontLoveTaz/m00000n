@@ -6,21 +6,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="menu" class="menu hidden">
-        <div class="header">
-            <span class="title">🌙 Moon Menu</span>
-        </div>
-        
-        <div id="items" class="items"></div>
+    <div id="menu" class="PWrapper hidden">
+        <div class="PElements">
+            <!-- Main Menu Area -->
+            <div class="PRightElements">
+                <div class="PBanner">
+                    <span style="color: #fff; font-size: 1.1vw; font-weight: 600; z-index: 2;">🌙 MOON MENU</span>
+                </div>
+                
+                <div id="items" class="PTabs"></div>
 
-        <!-- Input -->
-        <div id="inputBox" class="input-box hidden">
-            <div id="inputTitle" class="input-title"></div>
-            <input id="input" type="text" autocomplete="off" spellcheck="false">
-            <div class="hint">ENTER = Confirm • ESC = Cancel</div>
+                <!-- Input -->
+                <div id="inputBox" class="input-box hidden">
+                    <div id="inputTitle" class="input-title"></div>
+                    <input id="input" type="text" autocomplete="off">
+                    <div class="hint">ENTER = Confirm • ESC = Cancel</div>
+                </div>
+            </div>
         </div>
-
-        <div class="footer">Moon Menu • Simple DUI</div>
     </div>
 
     <script src="script.js"></script>
