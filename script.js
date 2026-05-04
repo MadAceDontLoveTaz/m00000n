@@ -91,22 +91,24 @@ window.addEventListener('message', e => {
         inputField.value = d.value || "";
         inputBox.classList.add('show');
         
-        // Force focus
+        // Strong focus
         setTimeout(() => {
             inputField.focus();
             inputField.select();
-        }, 50);
+        }, 80);
     }
     else if (d.action === 'closeInput') {
         isInputOpen = false;
         inputBox.classList.remove('show');
     }
+    else if (d.action === 'updateInput') {
+        inputField.value = d.value || "";
+    }
 });
 
-// Input handling
+// Input Key Handling
 document.addEventListener('keydown', e => {
     if (isInputOpen) {
-        // Allow normal typing in the input field
         if (e.key === "Enter") {
             send({ action: "textInputResult", value: inputField.value });
             inputBox.classList.remove('show');
@@ -117,11 +119,9 @@ document.addEventListener('keydown', e => {
             inputBox.classList.remove('show');
             isInputOpen = false;
         }
-        // Do NOT block other keys - let the input field handle them
-        return;
+        return; // Let the input field handle normal typing
     }
 
-    // Normal menu navigation
     send({ action: "keyPressed", key: e.key });
 });
 
