@@ -2,35 +2,77 @@
 <html>
 <head>
     <style>
-        body { background: rgba(15, 15, 15, 0.9); color: #00ffcc; font-family: 'Consolas', monospace; }
-        .btn { border: 1px solid #00ffcc; padding: 10px; cursor: pointer; margin: 5px; display: inline-block; }
-        .btn:hover { background: #00ffcc; color: black; }
+        body { font-family: 'Segoe UI', sans-serif; background: rgba(0,0,0,0.8); color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        #menu { width: 400px; background: #1a1a1a; border: 1px solid #00bfff; border-radius: 8px; padding: 20px; box-shadow: 0 0 20px rgba(0, 191, 255, 0.3); }
+        .header { font-size: 24px; color: #00bfff; text-align: center; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        .tab-container { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .tab { cursor: pointer; padding: 5px 10px; color: #888; transition: 0.3s; }
+        .tab.active { color: #00bfff; border-bottom: 2px solid #00bfff; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { background: #222; border: 1px solid #333; color: #ccc; padding: 10px; cursor: pointer; transition: 0.2s; border-radius: 4px; }
+        button:hover { background: #00bfff; color: #000; }
+        .toggle-btn.active { border-color: #00ff00; color: #00ff00; }
     </style>
 </head>
 <body>
-    <div id="status">DUI MOD MENU ACTIVE</div>
-    <div class="btn" onclick="sendToLua('Noclip')">TOGGLE NOCLIP</div>
+    <div id="menu">
+        <div class="header">Moon Mono</div>
+        <div class="tab-container" id="tabs"></div>
+        <div class="btn-grid" id="button-area"></div>
+    </div>
 
     <script>
-        function sendToLua(label) {
-            // This is the specific way to talk back to 'onDuiMessage' in Lua
-            if (window.parent && window.parent.postMessage) {
-                // We send a stringified JSON back to the game engine
-                const payload = JSON.stringify({ label: label });
-                
-                // For most injected DUIs, this triggers the Lua event
-                window.exports.sugar.SendMessageToDui(payload); 
-                // OR if using standard FiveM DUI:
-                // console.log(payload); // Sometimes mapped to message handler
-            }
-        }
-
-        // Listen for the activeMenu table you sent via MachoSendDuiMessage
+        // Communication from Lua to JS
         window.addEventListener('message', (event) => {
-            if (event.data.activeMenu) {
-                document.getElementById('status').innerText = "Menu Data Received!";
+            const data = JSON.parse(event.data);
+            if (data.action === "updateMenu") {
+                renderMenu(data.menuData);
             }
         });
+
+        // Communication from JS to Lua
+        function triggerAction(actionName, value) {
+            fetch(`https://${GetParentResourceName()}/menuAction`, {
+                method: 'POST',
+                body: JSON.stringify({ action: actionName, value: value })
+            });
+        }
+
+        function renderMenu(tabs) {
+            const tabArea = document.getElementById('tabs');
+            const btnArea = document.getElementById('button-area');
+            
+            tabs.forEach((tab, index) => {
+                let tabEl = document.createElement('div');
+                tabEl.className = `tab ${index === 0 ? 'active' : ''}`;
+                tabEl.innerText = tab.name;
+                tabEl.onclick = () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tabEl.classList.add('active');
+                    renderButtons(tab.submenu);
+                };
+                tabArea.appendChild(tabEl);
+            });
+            renderButtons(tabs[0].submenu); // Default
+        }
+
+        function renderButtons(buttons) {
+            const btnArea = document.getElementById('button-area');
+            btnArea.innerHTML = '';
+            buttons.forEach(btn => {
+                let el = document.createElement('button');
+                el.innerText = btn.label;
+                if(btn.type === 'checkbox' && btn.value) el.classList.add('active');
+                el.onclick = () => {
+                    if(btn.type === 'checkbox') {
+                        btn.value = !btn.value;
+                        el.classList.toggle('active');
+                    }
+                    triggerAction(btn.label, btn.value);
+                };
+                btnArea.appendChild(el);
+            });
+        }
     </script>
 </body>
 </html>
