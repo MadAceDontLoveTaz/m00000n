@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moon Menu</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="menu" class="menu-container hidden">
+    <div id="menu" class="menu hidden">
         <div class="header" id="title">Moon Menu</div>
-        <div id="items" class="items-container"></div>
+        <div id="items" class="items"></div>
 
-        <div id="inputContainer" class="input-container hidden">
-            <div id="inputQuestion" class="input-question"></div>
-            <input id="inputField" type="text" placeholder="Type here..." autocomplete="off">
-            <div class="input-hint">ENTER = Confirm • ESC = Cancel</div>
+        <!-- Input -->
+        <div id="inputBox" class="input-box hidden">
+            <div id="inputTitle"></div>
+            <input id="input" type="text" autocomplete="off">
+            <div class="hint">ENTER = Confirm • ESC = Cancel</div>
         </div>
 
         <div class="footer">Moon Menu • Simple DUI</div>
