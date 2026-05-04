@@ -1,4 +1,4 @@
-let currentItems = [];
+let currentMenu = [];
 let activeIndex = 0;
 let isInputOpen = false;
 
@@ -16,26 +16,29 @@ function send(data) {
     });
 }
 
-function renderItems() {
+function renderMenu() {
     itemsContainer.innerHTML = '';
 
-    currentItems.forEach((item, index) => {
+    currentMenu.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = `item ${index === activeIndex ? 'active' : ''}`;
-        
-        let html = `<span>${item.label || 'Item'}</span>`;
-        
-        if (item.type === 'checkbox' || item.checked !== undefined) {
-            const isChecked = item.value || item.checked || false;
-            html += `<span class="checkbox">${isChecked ? '✅' : '⬜'}</span>`;
+
+        let label = item.label || "Unknown";
+        let extra = "";
+
+        if (item.type === 'checkbox' || item.value !== undefined) {
+            const checked = item.value || item.checked || false;
+            extra = `<span class="checkbox">${checked ? '✅' : '⬜'}</span>`;
+        } else if (item.type === 'button') {
+            extra = `<span style="color:#22c55e; font-size:13px;">→</span>`;
         }
-        
-        div.innerHTML = html;
+
+        div.innerHTML = `<span>${label}</span>${extra}`;
         itemsContainer.appendChild(div);
     });
 }
 
-window.addEventListener('message', function(event) {
+window.addEventListener('message', (event) => {
     const data = event.data;
 
     if (data.action === 'setVisible') {
@@ -43,9 +46,9 @@ window.addEventListener('message', function(event) {
     }
 
     else if (data.action === 'setCurrent') {
-        currentItems = data.menu || [];
+        currentMenu = data.menu || [];
         activeIndex = data.current || 0;
-        renderItems();
+        renderMenu();
     }
 
     else if (data.action === 'openInput') {
@@ -68,19 +71,15 @@ window.addEventListener('message', function(event) {
     }
 });
 
-// Keyboard Input
-document.addEventListener('keydown', function(e) {
+// Keyboard
+document.addEventListener('keydown', (e) => {
     if (isInputOpen) {
-        if (e.key === "Enter") {
-            send({ action: "textInputResult", value: inputField.value });
-        } else if (e.key === "Escape") {
-            send({ action: "textInputResult", value: null });
-        }
+        if (e.key === "Enter") send({ action: "textInputResult", value: inputField.value });
+        if (e.key === "Escape") send({ action: "textInputResult", value: null });
         return;
     }
-
     send({ action: "keyPressed", key: e.key });
 });
 
-// Ready Signal
+// Ready
 send({ action: "ready" });
