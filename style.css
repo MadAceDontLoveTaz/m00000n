@@ -1,125 +1,77 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+let currentMenu = [];
+let activeIndex = 0;
+let isInputOpen = false;
+
+const menu = document.getElementById('menu');
+const itemsDiv = document.getElementById('items');
+const inputBox = document.getElementById('inputBox');
+const inputField = document.getElementById('input');
+const inputTitle = document.getElementById('inputTitle');
+
+function send(data) {
+    fetch(`https://${GetParentResourceName()}/message`, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
 }
 
-body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: rgba(0, 0, 0, 0.95);
-    color: #e0e0e0;
-    overflow: hidden;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+function render() {
+    itemsDiv.innerHTML = '';
+    currentMenu.forEach((item, i) => {
+        const el = document.createElement('div');
+        el.className = `item ${i === activeIndex ? 'active' : ''}`;
+        
+        let html = `<span>${item.label || 'Unknown'}</span>`;
+        
+        if (item.type === 'checkbox') {
+            const checked = item.value || item.checked || false;
+            html += `<span class="checkbox">${checked ? '✅' : '⬜'}</span>`;
+        }
+        el.innerHTML = html;
+        itemsDiv.appendChild(el);
+    });
 }
 
-.menu {
-    width: 460px;
-    background: #0f0f12;
-    border: 1px solid #1f1f25;
-    border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
-    overflow: hidden;
-}
+window.addEventListener('message', e => {
+    const d = e.data;
 
-.header {
-    background: linear-gradient(90deg, #1a1a21, #25252d);
-    padding: 16px 20px;
-    border-bottom: 1px solid #2a2a32;
-    display: flex;
-    align-items: center;
-}
+    if (d.action === 'setVisible') {
+        menu.classList.toggle('hidden', !d.visible);
+    }
 
-.title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #60a5fa;
-    letter-spacing: 0.5px;
-}
+    else if (d.action === 'setCurrent') {
+        currentMenu = d.menu || [];
+        activeIndex = d.current || 0;
+        render();
+    }
 
-.items {
-    max-height: 68vh;
-    overflow-y: auto;
-    padding: 6px 0;
-}
+    else if (d.action === 'openInput') {
+        isInputOpen = true;
+        inputTitle.textContent = d.question || "Enter value:";
+        inputField.value = d.value || "";
+        inputBox.classList.remove('hidden');
+        menu.classList.add('hidden');
+        setTimeout(() => inputField.focus(), 100);
+    }
 
-.item {
-    padding: 14px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #1a1a21;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    font-size: 15.5px;
-}
+    else if (d.action === 'closeInput') {
+        isInputOpen = false;
+        inputBox.classList.add('hidden');
+        menu.classList.remove('hidden');
+    }
 
-.item:hover {
-    background: #1f1f25;
-    transform: translateX(4px);
-}
+    else if (d.action === 'updateInput') {
+        inputField.value = d.value || "";
+    }
+});
 
-.item.active {
-    background: #1e40af;
-    color: white;
-    border-left: 4px solid #60a5fa;
-}
+document.addEventListener('keydown', e => {
+    if (isInputOpen) {
+        if (e.key === "Enter") send({ action: "textInputResult", value: inputField.value });
+        if (e.key === "Escape") send({ action: "textInputResult", value: null });
+        return;
+    }
+    send({ action: "keyPressed", key: e.key });
+});
 
-.checkbox {
-    font-size: 18px;
-    color: #34d399;
-}
-
-.input-box {
-    padding: 22px;
-    background: #0f0f12;
-    border-top: 1px solid #1f1f25;
-}
-
-.input-title {
-    margin-bottom: 10px;
-    font-weight: 500;
-    color: #93c5fd;
-}
-
-input {
-    width: 100%;
-    background: #17171c;
-    border: 1px solid #374151;
-    color: #f1f5f9;
-    padding: 13px 16px;
-    border-radius: 8px;
-    font-size: 16px;
-    outline: none;
-}
-
-input:focus {
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
-}
-
-.hint {
-    margin-top: 10px;
-    text-align: center;
-    font-size: 13px;
-    color: #64748b;
-}
-
-.footer {
-    text-align: center;
-    padding: 10px;
-    font-size: 12px;
-    color: #475569;
-    background: #0a0a0c;
-}
-
-/* Scrollbar */
-.items::-webkit-scrollbar {
-    width: 5px;
-}
-.items::-webkit-scrollbar-thumb {
-    background: #374151;
-    border-radius: 10px;
-}
+send({ action: "ready" });
