@@ -49,7 +49,7 @@ window.addEventListener('message', e => {
     }
     else if (d.action === 'openInput') {
         isInputOpen = true;
-        inputTitle.textContent = d.question || "Enter value:";
+        inputTitle.textContent = d.question || "Enter value";
         inputField.value = d.value || "";
         inputBox.classList.add('show');
         inputField.focus();
