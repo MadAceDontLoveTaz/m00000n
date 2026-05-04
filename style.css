@@ -10,7 +10,6 @@ body {
     background: none;
     overflow: hidden;
     height: 100vh;
-    user-select: none;
 }
 
 .PWrapper {
@@ -80,25 +79,29 @@ body {
     font-size: 1.1vw;
 }
 
-/* Input - Now clean overlay */
+/* Clean Input - Only shows when needed */
 .input-box {
     position: absolute;
     left: 50%;
-    top: 45%;
+    top: 40%;
     transform: translate(-50%, -50%);
-    width: 28vw;
+    width: 26vw;
     background: #111;
     border: 2px solid rgb(var(--menu-color));
-    border-radius: 8px;
-    padding: 18px 22px;
+    border-radius: 6px;
+    padding: 15px 20px;
     z-index: 10000;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    display: none;
+}
+
+.input-box.show {
+    display: block;
 }
 
 .input-box #inputTitle {
     color: #ddd;
-    font-size: 0.85vw;
-    margin-bottom: 10px;
+    font-size: 0.9vw;
+    margin-bottom: 8px;
     text-align: center;
 }
 
@@ -107,14 +110,9 @@ body {
     background: #1a1a1a;
     border: 1px solid #444;
     color: white;
-    padding: 14px;
-    font-size: 1.05vw;
-    border-radius: 6px;
-    outline: none;
-}
-
-.input-box input:focus {
-    border-color: rgb(var(--menu-color));
+    padding: 12px;
+    font-size: 1vw;
+    border-radius: 4px;
 }
 
 /* Scrollbar */
