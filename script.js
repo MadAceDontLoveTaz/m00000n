@@ -10,6 +10,7 @@ const tabsDiv = document.getElementById('tabs');
 const inputBox = document.getElementById('inputBox');
 const inputField = document.getElementById('input');
 const inputTitle = document.getElementById('inputTitle');
+const notifContainer = document.getElementById('notifications');
 
 function send(data) {
     fetch(`https://${GetParentResourceName()}/message`, {
@@ -18,6 +19,7 @@ function send(data) {
     });
 }
 
+// Render Tabs
 function renderTabs() {
     tabsDiv.innerHTML = '';
     if (currentTabs.length === 0) {
@@ -29,11 +31,11 @@ function renderTabs() {
     currentTabs.forEach((tab, i) => {
         const el = document.createElement('div');
         el.className = `PCategory ${i === currentTabIndex ? 'active' : ''}`;
-        el.textContent = tab.name || tab;
+        el.textContent = tab.name || 'Tab';
         el.onclick = () => {
             currentTabIndex = i;
             activeIndex = 0;
-            currentMenu = currentTabs[i].submenu || currentTabs[i];
+            currentMenu = currentTabs[i].submenu || [];
             render();
             renderTabs();
         };
@@ -41,6 +43,7 @@ function renderTabs() {
     });
 }
 
+// Render Menu Items
 function render() {
     itemsDiv.innerHTML = '';
     currentMenu.forEach((item, i) => {
@@ -53,7 +56,7 @@ function render() {
         el.appendChild(label);
 
         if (item.type === 'checkbox') {
-            const checked = item.value !== undefined ? item.value : (item.checked || false);
+            const checked = item.value || item.checked || false;
             const check = document.createElement('div');
             check.className = 'checkbox';
             check.textContent = checked ? '✅' : '⬜';
@@ -61,6 +64,22 @@ function render() {
         }
         itemsDiv.appendChild(el);
     });
+}
+
+// Notifications
+function showNotification(title, message, type = 'info', duration = 3500) {
+    const notif = document.createElement('div');
+    notif.className = `Notification ${type}`;
+    notif.innerHTML = `
+        <strong>${title}</strong><br>
+        <span>${message}</span>
+    `;
+    notifContainer.appendChild(notif);
+
+    setTimeout(() => {
+        notif.style.opacity = '0';
+        setTimeout(() => notif.remove(), 300);
+    }, duration);
 }
 
 window.addEventListener('message', e => {
@@ -73,7 +92,7 @@ window.addEventListener('message', e => {
         currentMenu = d.menu || [];
         activeIndex = d.current || 0;
 
-        if (d.menu && d.menu.tabs) {
+        if (d.menu && d.menu.tabs && d.menu.tabs.length > 0) {
             currentTabs = d.menu.tabs;
             renderTabs();
             if (currentTabs[currentTabIndex] && currentTabs[currentTabIndex].submenu) {
@@ -95,6 +114,9 @@ window.addEventListener('message', e => {
     else if (d.action === 'closeInput') {
         isInputOpen = false;
         inputBox.classList.remove('show');
+    }
+    else if (d.action === 'notification') {
+        showNotification(d.title, d.message, d.type, d.duration);
     }
 });
 
