@@ -1,0 +1,104 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    user-select: none;
+}
+
+#menu-wrapper {
+    position: absolute;
+    left: 2%;
+    top: 15%;
+    width: 320px;
+    background: rgba(15, 15, 15, 0.95);
+    border-radius: 10px;
+    border-left: 4px solid #00bfff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.menu-header {
+    padding: 15px;
+    background: rgba(0, 191, 255, 0.1);
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#tabs-container {
+    display: flex;
+    background: rgba(0, 0, 0, 0.3);
+    overflow-x: auto;
+}
+
+.tab-item {
+    padding: 10px;
+    flex: 1;
+    text-align: center;
+    font-size: 13px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: 0.2s;
+}
+
+.tab-item.active {
+    opacity: 1;
+    background: rgba(0, 191, 255, 0.2);
+    border-bottom: 2px solid #00bfff;
+}
+
+#items-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.menu-item {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.2s;
+}
+
+.menu-item.selected {
+    background: rgba(0, 191, 255, 0.2);
+    padding-left: 25px;
+}
+
+.checkbox-visual {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #555;
+    border-radius: 4px;
+}
+
+.checkbox-visual.checked {
+    background: #00bfff;
+    border-color: #00bfff;
+}
+
+/* Notifications */
+#notifications-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+}
+
+.notification {
+    background: rgba(20, 20, 20, 0.9);
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    border-right: 5px solid #00bfff;
+    animation: slideIn 0.3s ease-out;
+}
+
+.notification.success { border-color: #2ecc71; }
+.notification.error { border-color: #e74c3c; }
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
