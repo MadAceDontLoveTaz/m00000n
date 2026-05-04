@@ -51,27 +51,19 @@ window.addEventListener('message', e => {
         isInputOpen = true;
         inputTitle.textContent = d.question || "Enter value:";
         inputField.value = d.value || "";
-        inputBox.classList.remove('hidden');
+        inputBox.classList.add('show');
         inputField.focus();
     }
     else if (d.action === 'closeInput') {
         isInputOpen = false;
-        inputBox.classList.add('hidden');
+        inputBox.classList.remove('show');
     }
 });
 
 document.addEventListener('keydown', e => {
     if (isInputOpen) {
-        if (e.key === "Enter") {
-            send({ action: "textInputResult", value: inputField.value });
-            inputBox.classList.add('hidden');
-            isInputOpen = false;
-        }
-        if (e.key === "Escape") {
-            send({ action: "textInputResult", value: null });
-            inputBox.classList.add('hidden');
-            isInputOpen = false;
-        }
+        if (e.key === "Enter") send({ action: "textInputResult", value: inputField.value });
+        if (e.key === "Escape") send({ action: "textInputResult", value: null });
         return;
     }
     send({ action: "keyPressed", key: e.key });
