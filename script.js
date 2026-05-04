@@ -20,7 +20,7 @@ function send(data) {
 
 function renderTabs() {
     tabsDiv.innerHTML = '';
-    if (!currentTabs || currentTabs.length === 0) {
+    if (currentTabs.length === 0) {
         tabsDiv.style.display = 'none';
         return;
     }
@@ -29,11 +29,11 @@ function renderTabs() {
     currentTabs.forEach((tab, i) => {
         const el = document.createElement('div');
         el.className = `PCategory ${i === currentTabIndex ? 'active' : ''}`;
-        el.textContent = tab.name || 'Tab';
+        el.textContent = tab.name || tab;
         el.onclick = () => {
             currentTabIndex = i;
             activeIndex = 0;
-            currentMenu = currentTabs[i].submenu || [];
+            currentMenu = currentTabs[i].submenu || currentTabs[i];
             render();
             renderTabs();
         };
@@ -53,7 +53,7 @@ function render() {
         el.appendChild(label);
 
         if (item.type === 'checkbox') {
-            const checked = item.value || item.checked || false;
+            const checked = item.value !== undefined ? item.value : (item.checked || false);
             const check = document.createElement('div');
             check.className = 'checkbox';
             check.textContent = checked ? '✅' : '⬜';
@@ -73,7 +73,7 @@ window.addEventListener('message', e => {
         currentMenu = d.menu || [];
         activeIndex = d.current || 0;
 
-        if (d.menu && d.menu.tabs && d.menu.tabs.length > 0) {
+        if (d.menu && d.menu.tabs) {
             currentTabs = d.menu.tabs;
             renderTabs();
             if (currentTabs[currentTabIndex] && currentTabs[currentTabIndex].submenu) {
@@ -81,10 +81,8 @@ window.addEventListener('message', e => {
             }
         } else {
             currentTabs = [];
-            tabsDiv.innerHTML = '';
             tabsDiv.style.display = 'none';
         }
-
         render();
     }
     else if (d.action === 'openInput') {
@@ -92,7 +90,7 @@ window.addEventListener('message', e => {
         inputTitle.textContent = d.question || "Enter value:";
         inputField.value = d.value || "";
         inputBox.classList.add('show');
-        setTimeout(() => inputField.focus(), 50);
+        setTimeout(() => inputField.focus(), 100);
     }
     else if (d.action === 'closeInput') {
         isInputOpen = false;
@@ -100,24 +98,21 @@ window.addEventListener('message', e => {
     }
 });
 
-// Improved Input Handling
 document.addEventListener('keydown', e => {
     if (isInputOpen) {
-        // Let the input field handle typing naturally
         if (e.key === "Enter") {
             send({ action: "textInputResult", value: inputField.value });
             inputBox.classList.remove('show');
             isInputOpen = false;
-        } 
-        else if (e.key === "Escape") {
+        }
+        if (e.key === "Escape") {
             send({ action: "textInputResult", value: null });
             inputBox.classList.remove('show');
             isInputOpen = false;
         }
-        return; // Important: don't send key to menu while typing
+        return;
     }
 
-    // Normal menu navigation
     send({ action: "keyPressed", key: e.key });
 });
 
