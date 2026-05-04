@@ -1,12 +1,8 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.9);
     color: white;
     overflow: hidden;
     height: 100vh;
@@ -16,7 +12,7 @@ body {
 }
 
 .menu-container {
-    width: 420px;
+    width: 440px;
     background: #18181b;
     border: 1px solid #3f3f46;
     border-radius: 12px;
@@ -33,7 +29,7 @@ body {
 }
 
 .items-container {
-    max-height: 65vh;
+    max-height: 68vh;
     overflow-y: auto;
 }
 
@@ -45,20 +41,13 @@ body {
     border-bottom: 1px solid #27272a;
     transition: all 0.2s;
     user-select: none;
+    cursor: pointer;
 }
 
-.item:hover {
-    background: #27272a;
-}
+.item:hover { background: #27272a; }
+.item.active { background: #2563eb; color: white; }
 
-.item.active {
-    background: #2563eb;
-    color: white;
-}
-
-.checkbox {
-    font-size: 20px;
-}
+.checkbox { font-size: 20px; }
 
 .input-container {
     padding: 20px;
@@ -66,12 +55,7 @@ body {
     border-top: 1px solid #3f3f46;
 }
 
-.input-question {
-    margin-bottom: 8px;
-    font-weight: 500;
-    font-size: 15px;
-}
-
+.input-question { margin-bottom: 8px; font-weight: 500; }
 input {
     width: 100%;
     background: #27272a;
@@ -82,10 +66,7 @@ input {
     font-size: 16px;
     outline: none;
 }
-
-input:focus {
-    border-color: #3b82f6;
-}
+input:focus { border-color: #3b82f6; }
 
 .input-hint {
     margin-top: 8px;
@@ -100,13 +81,4 @@ input:focus {
     font-size: 12px;
     color: #52525b;
     background: #18181b;
-}
-
-/* Scrollbar */
-.items-container::-webkit-scrollbar {
-    width: 6px;
-}
-.items-container::-webkit-scrollbar-thumb {
-    background: #52525b;
-    border-radius: 3px;
 }
