@@ -146,3 +146,32 @@ body {
 .PTabs::-webkit-scrollbar-thumb {
     background: rgb(var(--menu-color));
 }
+
+.NotificationsWrapper {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10000;
+}
+
+.Notification {
+    background: #111;
+    border-left: 4px solid #60a5fa;
+    padding: 12px 16px;
+    width: 280px;
+    border-radius: 6px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    animation: slideIn 0.3s ease;
+}
+
+.Notification.success { border-left-color: #34d399; }
+.Notification.error { border-left-color: #ef4444; }
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
